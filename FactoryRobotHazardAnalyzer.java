@@ -5,19 +5,33 @@ class RobotSafetyException extends Exception {
 
     public RobotSafetyException(String message) {
         super(message);
-        System.out.println(message); // Exception displays message itself
+        System.out.println(message); // Exception prints message itself
     }
 }
 
 public class FactoryRobotHazardAnalyzer {
 
-    // UC6: Validation + calculation using exceptions
+    // UC7: Machinery state → risk factor mapping
+    private static double getMachineRiskFactor(String machineryState)
+            throws RobotSafetyException {
+
+        if (machineryState.equals("Worn")) {
+            return 1.3;
+        } else if (machineryState.equals("Faulty")) {
+            return 2.0;
+        } else if (machineryState.equals("Critical")) {
+            return 3.0;
+        } else {
+            throw new RobotSafetyException(
+                    "Error: Unsupported machinery state");
+        }
+    }
+
+    // UC6 + UC7: Validation + calculation
     public static double calculateHazardRisk(double armPrecision,
                                              int workerDensity,
                                              String machineryState)
             throws RobotSafetyException {
-
-        double machineRiskFactor;
 
         if (armPrecision < 0.0 || armPrecision > 1.0) {
             throw new RobotSafetyException(
@@ -29,16 +43,9 @@ public class FactoryRobotHazardAnalyzer {
                     "Error: Worker density must be 1-20");
         }
 
-        if (machineryState.equals("Worn")) {
-            machineRiskFactor = 1.3;
-        } else if (machineryState.equals("Faulty")) {
-            machineRiskFactor = 2.0;
-        } else if (machineryState.equals("Critical")) {
-            machineRiskFactor = 3.0;
-        } else {
-            throw new RobotSafetyException(
-                    "Error: Unsupported machinery state");
-        }
+        // UC7: Structured risk mapping
+        double machineRiskFactor =
+                getMachineRiskFactor(machineryState);
 
         return ((1.0 - armPrecision) * 15.0)
                 + (workerDensity * machineRiskFactor);
@@ -59,18 +66,4 @@ public class FactoryRobotHazardAnalyzer {
             int workerDensity = scanner.nextInt();
             scanner.nextLine();
 
-            System.out.println("Enter Machinery State:");
-            String machineryState = scanner.nextLine();
-
-            double risk = calculateHazardRisk(
-                    armPrecision, workerDensity, machineryState);
-
-            System.out.println("Hazard Risk Score: " + risk);
-
-        } catch (RobotSafetyException e) {
-            // Message already printed by exception
-        } finally {
-            scanner.close();
-        }
-    }
-}
+            System.out.println(
