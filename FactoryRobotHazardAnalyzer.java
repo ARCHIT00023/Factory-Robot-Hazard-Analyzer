@@ -1,23 +1,32 @@
 import java.util.Scanner;
 
+// UC6: Custom Exception
+class RobotSafetyException extends Exception {
+
+    public RobotSafetyException(String message) {
+        super(message);
+        System.out.println(message); // Exception displays message itself
+    }
+}
+
 public class FactoryRobotHazardAnalyzer {
 
-    // UC5: Validation + calculation in one method
+    // UC6: Validation + calculation using exceptions
     public static double calculateHazardRisk(double armPrecision,
                                              int workerDensity,
-                                             String machineryState) {
+                                             String machineryState)
+            throws RobotSafetyException {
 
         double machineRiskFactor;
 
-        // Validation logic
         if (armPrecision < 0.0 || armPrecision > 1.0) {
-            System.out.println("Error: Arm precision must be 0.0 - 1.0");
-            return -1;
+            throw new RobotSafetyException(
+                    "Error: Arm precision must be 0.0-1.0");
         }
 
         if (workerDensity < 1 || workerDensity > 20) {
-            System.out.println("Error: Worker density must be 1 - 20");
-            return -1;
+            throw new RobotSafetyException(
+                    "Error: Worker density must be 1-20");
         }
 
         if (machineryState.equals("Worn")) {
@@ -27,42 +36,41 @@ public class FactoryRobotHazardAnalyzer {
         } else if (machineryState.equals("Critical")) {
             machineRiskFactor = 3.0;
         } else {
-            System.out.println("Error: Unsupported machinery state");
-            return -1;
+            throw new RobotSafetyException(
+                    "Error: Unsupported machinery state");
         }
 
-        // Hazard risk calculation
         return ((1.0 - armPrecision) * 15.0)
                 + (workerDensity * machineRiskFactor);
     }
 
     public static void main(String[] args) {
 
-        // UC1: Static message
         System.out.println("Factory Robot Hazard Analyzer");
 
         Scanner scanner = new Scanner(System.in);
 
-        // UC2: Input
-        System.out.println("Enter Arm Precision:");
-        double armPrecision = scanner.nextDouble();
-        scanner.nextLine();
+        try {
+            System.out.println("Enter Arm Precision:");
+            double armPrecision = scanner.nextDouble();
+            scanner.nextLine();
 
-        System.out.println("Enter Worker Density:");
-        int workerDensity = scanner.nextInt();
-        scanner.nextLine();
+            System.out.println("Enter Worker Density:");
+            int workerDensity = scanner.nextInt();
+            scanner.nextLine();
 
-        System.out.println("Enter Machinery State:");
-        String machineryState = scanner.nextLine();
+            System.out.println("Enter Machinery State:");
+            String machineryState = scanner.nextLine();
 
-        // UC5: Method call
-        double risk = calculateHazardRisk(
-                armPrecision, workerDensity, machineryState);
+            double risk = calculateHazardRisk(
+                    armPrecision, workerDensity, machineryState);
 
-        if (risk != -1) {
             System.out.println("Hazard Risk Score: " + risk);
-        }
 
-        scanner.close();
+        } catch (RobotSafetyException e) {
+            // Message already printed by exception
+        } finally {
+            scanner.close();
+        }
     }
 }
